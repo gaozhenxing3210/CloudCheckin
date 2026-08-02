@@ -16,77 +16,14 @@ jobs:
           command: |
             python -m nodeseek.nodeseek
 
-  v2ex:
-    docker:
-      - image: cimg/python:3.11
-    steps:
-      - checkout
-      - run:
-          name: Install dependencies
-          command: |
-            python -m pip install --upgrade pip
-            pip install curl_cffi python-dotenv
-      - run:
-          name: Run V2EX signin
-          command: |
-            python -m v2ex.v2ex
-
-  onepoint3acres:
-    docker:
-      - image: cimg/python:3.11
-    steps:
-      - checkout
-      - run:
-          name: Install dependencies
-          command: |
-            python -m pip install --upgrade pip
-            pip install requests 2captcha-python python-dotenv
-      - run:
-          name: Run 1point3acres signin
-          command: |
-            python -m onepoint3acres.onepoint3acres
-
-  deepflood:
-    docker:
-      - image: cimg/python:3.11
-    steps:
-      - checkout
-      - run:
-          name: Install dependencies
-          command: |
-            python -m pip install --upgrade pip
-            pip install curl_cffi python-dotenv
-      - run:
-          name: Run Deepflood signin
-          command: |
-            python -m deepflood.deepflood
-
-  sakurafrp:
-    docker:
-      - image: cimg/python:3.11
-    steps:
-      - checkout
-      - run:
-          name: Install dependencies
-          command: |
-            python -m pip install --upgrade pip
-            pip install python-dotenv 'httpx[http2]' cryptography openai
-      - run:
-          name: Run SakuraFrp signin
-          command: |
-            python -m sakurafrp.sakurafrp
-
 workflows:
-  # Allow manual triggers
-  manual_trigger:
+  daily_nodeseek:
+    triggers:
+      - schedule:
+          cron: "0 16 * * *"
+          filters:
+            branches:
+              only: main
     jobs:
       - nodeseek:
-          context: checkincontext
-      - v2ex:
-          context: checkincontext
-      - onepoint3acres:
-          context: checkincontext
-      - deepflood:
-          context: checkincontext
-      - sakurafrp:
           context: checkincontext
