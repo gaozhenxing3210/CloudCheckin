@@ -28,7 +28,10 @@ def main():
 
     if not cookies:
         results.append("Configuration error: NODESEEK_COOKIE is not set")
-        send_source_notification("NODESEEK", results)
+        if os.environ.get("TELEGRAM_TOKEN", "").strip() and os.environ.get("TELEGRAM_CHAT_ID", "").strip():
+            send_source_notification("NODESEEK", results)
+        else:
+            print("Telegram notification skipped", flush=True)
         return 1
 
     for idx, cookie in enumerate(cookie_list):
@@ -57,7 +60,10 @@ def main():
         print(result, flush=True)
         results.append(result)
 
-    send_source_notification("NODESEEK", results)
+    if os.environ.get("TELEGRAM_TOKEN", "").strip() and os.environ.get("TELEGRAM_CHAT_ID", "").strip():
+        send_source_notification("NODESEEK", results)
+    else:
+        print("Telegram notification skipped", flush=True)
     return 1 if failed else 0
 
 
