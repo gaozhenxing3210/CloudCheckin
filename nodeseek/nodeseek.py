@@ -22,16 +22,20 @@ headers = {
 }
 
 
+def notify_if_configured(results):
+    if os.environ.get("TELEGRAM_TOKEN", "").strip() and os.environ.get("TELEGRAM_CHAT_ID", "").strip():
+        send_source_notification("NODESEEK", results)
+    else:
+        print("Telegram notification skipped", flush=True)
+
+
 def main():
     results = []
     failed = False
 
     if not cookies:
         results.append("Configuration error: NODESEEK_COOKIE is not set")
-        if os.environ.get("TELEGRAM_TOKEN", "").strip() and os.environ.get("TELEGRAM_CHAT_ID", "").strip():
-            send_source_notification("NODESEEK", results)
-        else:
-            print("Telegram notification skipped", flush=True)
+        notify_if_configured(results)
         return 1
 
     for idx, cookie in enumerate(cookie_list):
@@ -48,7 +52,9 @@ def main():
             print(f"Account {account} status code: {response.status_code}", flush=True)
             print(f"Account {account} response: {response.text}", flush=True)
 
-            if response.status_code == 200:
+            already_checked_in = "已完成签到" in response.text
+
+            if response.status_code == 200 or already_checked_in:
                 result = f"Account {account}: check-in successful"
             else:
                 result = f"Account {account}: check-in failed — {response.text}"
@@ -60,10 +66,7 @@ def main():
         print(result, flush=True)
         results.append(result)
 
-    if os.environ.get("TELEGRAM_TOKEN", "").strip() and os.environ.get("TELEGRAM_CHAT_ID", "").strip():
-        send_source_notification("NODESEEK", results)
-    else:
-        print("Telegram notification skipped", flush=True)
+    notify_if_configured(results)
     return 1 if failed else 0
 
 
