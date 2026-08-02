@@ -17,13 +17,7 @@ jobs:
             python -m nodeseek.nodeseek
 
 workflows:
-  daily_nodeseek:
-    triggers:
-      - schedule:
-          cron: "0 16 * * *"
-          filters:
-            branches:
-              only: main
+  nodeseek_checkin:
     jobs:
       - nodeseek:
           context: checkincontext
